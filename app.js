@@ -2,7 +2,8 @@ import express from 'express';
 import mongoose from 'mongoose';
 import authRouter from './routes/authRouter.js';
 import bodyParser from 'body-parser';
-
+import cookieParser from 'cookie-parser'
+import {requireAuth, checkUser} from './middleware/authMiddleware.js';
 const app = express();
 
 
@@ -10,6 +11,7 @@ const app = express();
 // middleware
 app.use(express.static('public'));
 app.use(bodyParser.json());
+app.use(cookieParser());
 
 // view engine
 app.set('view engine', 'ejs');
@@ -24,6 +26,7 @@ mongoose
 	.catch((err) => console.log(err));
 
 // routes
+app.get('*',checkUser);
 app.get('/', (req, res) => res.render('home'));
-app.get('/smoothies', (req, res) => res.render('smoothies'));
+app.get('/smoothies', requireAuth, (req, res) => res.render('smoothies'));
 app.use(authRouter);
